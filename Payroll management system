@@ -1,316 +1,343 @@
-import mysql.connector
-import datetime
-from tabulate import tabulate
-con=mysql.connector.connect(host="localhost",password="1234",user="root")
-cur=con.cursor(buffered=True)
-db=input("enter name of your database:")
-sql="create database if not exists %s" %(db,)
-cur.execute(sql)
-print("Database",db," created succesfully")
-con.commit()
-cur.execute("use "+db)
-con.commit()
-cur=con.cursor()
-t=input("enter name of your table:")
-sql="create table if not exists "+t+"\
-(Id int primary key,\
-Name varchar(20),\
-Age int,\
-Gross int,\
-Deduction int,\
-Allowances int,\
-NetPay int)"
-cur.execute(sql)
-print("Table",t,"created succesfully")
-con.commit()
-print("\n")
-print("                       ---------------------------------------------     ")
-print("\t\t\t WELCOME TO  THE PAYROLL MANAGEMENT SYSTEM")
-print("                       ---------------------------------------------     ")
-print("\n")
+try:
+    import mysql.connector
+    import datetime
+    from tabulate import tabulate
+    p=input("Enter MySQL password:")
+    con=mysql.connector.connect(host="localhost",password=p,user="root")
+    cur=con.cursor(buffered=True)
+    db=input("Enter name of your database:")
+    sql="create database if not exists %s" %(db,)
+    cur.execute(sql)
+    print("Database",db," created succesfully")
+    con.commit()
+    cur.execute("use "+db)
+    con.commit()
+    cur=con.cursor()
+    t=input("Enter name of your table:")
+    sql="create table if not exists "+t+"\
+    (Id int primary key,\
+    Name varchar(20),\
+    Age int,\
+    Gross int,\
+    Deduction int,\
+    Allowances int,\
+    NetPay int)"
+    cur.execute(sql)
+    print("Table",t,"created succesfully")
+    con.commit()
+    print("\n")
+    print("                       ---------------------------------------------     ")
+    print("\t\t\t WELCOME TO  THE PAYROLL MANAGEMENT SYSTEM")
+    print("                       ---------------------------------------------     ")
+    print("\n")
 
-def add():
-    try:
-        Id=int(input("enter employee id:"))
-        cur.execute("select * from "+t+" where Id=%s"%(Id,))
-        i=cur.fetchone()
-        if i==None:
-            name=input("enter employee name:")
-            age=int(input("enter employee age:"))
-            gr=int(input("enter gross salary:"))
-            ded=int(input("enter deductions:"))
-            allo=int(input("enter allowances:"))
-            net=int(input("enter net pay:"))
-            cur.execute("insert into pay values (%s,'%s',%s,%s,%s,%s,%s)"%(Id,name,age,gr,ded,allo,net))
-            con.commit()
-            print("Record added succesfully")
-            print("\n")
-           
-        else:
-            print("Id cannot be same")
-            print("\n")
-            
-    except Exception:
-        print("Something went wrong")
-        print("\n")
-  
-
-
-def search():
-    try:
-        a=int(input("enter Id the employee you want to search:"))
-        cur.execute("select * from "+t+" where Id=%s"%(a,))
-        rec=cur.fetchone()
-        
-        if rec==None:
-            print("No record found")
-        else:
-            print("\n")
-            print("*" * 50)
-            rec = list(rec)
-            print("Id-->", rec[0])
-            print()
-            print("Name-->", rec[1])
-            print()
-            print("Age-->", rec[2])
-            print()
-            print("Gross-->", rec[3])
-            print()
-            print("Deduction-->", rec[4])
-            print()
-            print("Allowances-->", rec[5])
-            print()
-            print("Net pay-->", rec[6])
-            print()
-            print("*" * 50)
-            print("\n")
-            
-    except Exception:
-        print("something went wrong")
-        print("\n")
+    def add():
+        try:
+            Id=int(input("Enter employee id:"))
+            cur.execute("select * from "+t+" where Id=%s"%(Id,))
+            i=cur.fetchone()
+            if i==None:
+                name=input("Enter employee name:")
+                age=int(input("Enter employee age:"))
+                gr=int(input("Enter gross salary:"))
+                ded=int(input("Enter deductions:"))
+                allo=int(input("Enter allowances:"))
+                net=int(input("Enter net pay:"))
+                cur.execute("insert into pay values (%s,'%s',%s,%s,%s,%s,%s)"%(Id,name,age,gr,ded,allo,net))
+                con.commit()
+                print("Record added succesfully")
+                print("\n")
+               
+            else:
+                print("Id cannot be same")
+                print("\n")
                 
-    
-        
-       
-       
-        
-def delete():
-    try:
-        a=int(input("enter Id of the employee you want to delete:"))
-        cur.execute("select * from "+t+" where Id=%s"%(a,))
-        rec=cur.fetchone()
-        
-        if rec==None:
-            print("No record found")
+        except Exception:
+            print("Something went wrong")
             print("\n")
-        else:
-            rec=list(rec)
-            cur.execute("delete from "+t+" where Id=%s"%(a,))
-            print("Record deleted succesfully")
-            print("\n")
-            con.commit()
-    except Exception:
-        print("Something went wrong")
-        print("\n")
+      
 
 
-def update():
-    try:
-        cur=con.cursor()
-        i=int(input("enter previous Id of the employee:"))
-        cur.execute("select * from "+t+" where Id=" +str(i))
-        r=cur.fetchone()
-        if r==None:
-            print("No record found")
-            print("\n")
-        else:
-            cur.reset()
-            cur=con.cursor(buffered=True)
-            cur.execute("delete from "+t+" where Id=%s"%(i,))
-            i=int(input("enter employee id:"))
-            n=input("enter employee name:")
-            a=int(input("enter employee age:"))
-            gr=int(input("enter gross salary:"))
-            ded=int(input("enter deductions:"))
-            allo=int(input("enter allowances:"))
-            net=int(input("enter net pay:"))
-            cur.execute("insert into pay values (%s,'%s',%s,%s,%s,%s,%s)"%(i,n,a,gr,ded,allo,net))
-            print("Record updated succesfully")
-            con.commit()
-            print("\n")
-    except Exception:
-        print("Something went wrong")
-        print("\n")
-        
-
-
-def search_all():
-    try:
-        cur=con.cursor()
-        cur.execute("select * from "+t)
-        a=cur.fetchone()
-        d=cur.fetchall()
-        if a==None:
-            print("No record present")
-            print("\n")
-        else:
-            cur.execute("select * from "+t)
-            d=cur.fetchall()
-            print(tabulate(d,headers=["Id","Name","Age","Grosssalary","Deduction","Allowances","NetPay"],tablefmt="psql"))
-            print("\n")
-    except Exception:
-        print("Something went wrong")
-        print("\n")
-
-
+    def search():
+        try:
+            a=int(input("Enter Id the employee you want to search:"))
+            cur.execute("select * from "+t+" where Id=%s"%(a,))
+            rec=cur.fetchone()
             
-def delete_all():
-    try:
-        cur=con.cursor(buffered=True)
-        print("Do you want to delete all the records? Yes/No")
-        c=input()
-        if c== "Yes" or "yes" or "y":
+            if rec==None:
+                print("No record found")
+            else:
+                print("\n")
+                print("*" * 50)
+                rec = list(rec)
+                print("Id-->", rec[0])
+                print()
+                print("Name-->", rec[1])
+                print()
+                print("Age-->", rec[2])
+                print()
+                print("Gross-->", rec[3])
+                print()
+                print("Deduction-->", rec[4])
+                print()
+                print("Allowances-->", rec[5])
+                print()
+                print("Net pay-->", rec[6])
+                print()
+                print("*" * 50)
+                print("\n")
+                
+        except Exception:
+            print("Something went wrong")
+            print("\n")
+                    
+        
+            
+           
+           
+            
+    def delete():
+        try:
+            a=int(input("Enter Id of the employee you want to delete:"))
+            cur.execute("select * from "+t+" where Id=%s"%(a,))
+            rec=cur.fetchone()
+            
+            if rec==None:
+                print("No record found")
+                print("\n")
+            else:
+                rec=list(rec)
+                cur.execute("delete from "+t+" where Id=%s"%(a,))
+                print("Record deleted succesfully")
+                print("\n")
+                con.commit()
+        except Exception:
+            print("Something went wrong")
+            print("\n")
+
+
+    def update():
+        try:
+            cur=con.cursor()
+            i=int(input("Enter previous Id of the employee:"))
+            cur.execute("select * from "+t+" where Id=" +str(i))
+            r=cur.fetchone()
+            if r==None:
+                print("No record found")
+                print("\n")
+            else:
+                cur.reset()
+                cur=con.cursor(buffered=True)
+                cur.execute("delete from "+t+" where Id=%s"%(i,))
+                i=int(input("Enter employee id:"))
+                n=input("Enter employee name:")
+                a=int(input("Enter employee age:"))
+                gr=int(input("Enter gross salary:"))
+                ded=int(input("Enter deductions:"))
+                allo=int(input("Enter allowances:"))
+                net=int(input("Enter net pay:"))
+                cur.execute("insert into pay values (%s,'%s',%s,%s,%s,%s,%s)"%(i,n,a,gr,ded,allo,net))
+                print("Record updated succesfully")
+                con.commit()
+                print("\n")
+        except Exception:
+            print("Something went wrong")
+            print("\n")
+            
+
+
+    def search_all():
+        try:
+            cur=con.cursor()
             cur.execute("select * from "+t)
             a=cur.fetchone()
             d=cur.fetchall()
             if a==None:
                 print("No record present")
-            else:
-                cur.execute("delete from "+t)
-                print("Data deleted succesfully")
                 print("\n")
-                con.commit()
-        elif c=="NO" or "no" or "n":
-            print("OK")
-           
-    except Exception:
-        print("Something went wrong")
-        print("\n")
-
-
-
-def slip():
-    try:
-        cur=con.cursor(buffered=True)
-        a=int(input("enter  Id of the employee:"))
-        cur.execute("select * from "+t+" where Id=%s"%(a,))
-        s=cur.fetchone()
-        if s==None:
-            print("No record found")
-        else:
-            cur.execute("select * from "+t+" where Id=%s"%(a,))
-            s=cur.fetchone()
-            print(""" \t\t\t\t\t SALARY SLIP
-                                           ---------------""")
-            print()
-            d=datetime.date.today()
-            print("\t\t\t\t    -----",d,"------")
-            print()
-            s=list(s)
-            
-            print("\t\t\t\t    Id-->", s[0])
-            print()
-            print("\t\t\t\t    Name-->", s[1])
-            print()
-            print("\t\t\t\t    Age-->", s[2])
-            print()
-            print("\t\t\t\t    Gross-->", s[3])
-            print()
-            print("\t\t\t\t    Deduction-->", s[4])
-            print()
-            print("\t\t\t\t    Allowances-->", s[5])
-            print()
-            print("\t\t\t\t    Net pay-->", s[6])
-            print()
+            else:
+                cur.execute("select * from "+t)
+                d=cur.fetchall()
+                print(tabulate(d,headers=["Id","Name","Age","Grosssalary","Deduction","Allowances","NetPay"],tablefmt="psql"))
+                print("\n")
+        except Exception:
+            print("Something went wrong")
             print("\n")
 
-    except Exception:
-        print("Something went wrong")
-        
-        
-        
+
+                
+    def delete_all():
+        try:
+            cur=con.cursor(buffered=True)
+            print("Do you want to delete all the records? Yes/No")
+            c=input()
+            if c=="yes":
+                cur.execute("select * from "+t)
+                a=cur.fetchone()
+                d=cur.fetchall()
+                if a==None:
+                    print("No record present")
+                else:
+                    cur.execute("delete from "+t)
+                    print("Data deleted succesfully")
+                    print("\n")
+                    con.commit()
+            elif c=="Yes":
+                cur.execute("select * from "+t)
+                a=cur.fetchone()
+                d=cur.fetchall()
+                if a==None:
+                    print("No record present")
+                else:
+                    cur.execute("delete from "+t)
+                    print("Data deleted succesfully")
+                    print("\n")
+                    con.commit()
+            elif c=="y":
+                cur.execute("select * from "+t)
+                a=cur.fetchone()
+                d=cur.fetchall()
+                if a==None:
+                    print("No record present")
+                else:
+                    cur.execute("delete from "+t)
+                    print("Data deleted succesfully")
+                    print("\n")
+                    con.commit()  
+            else:
+                print("OK")
+               
+        except Exception:
+            print("Something went wrong")
+            print("\n")
 
 
-def slip_all():
-    try:
-        
-        cur=con.cursor(buffered=True)
-        cur.execute("select * from "+t)
-        s=cur.fetchone()
-        if s==None:
-            print("No record found")
-        else:
-            cur.execute("select * from "+t)
-            l=cur.fetchall()
-            for i in l:
-                i=list(i)
-                print(" \t\t\t\t\t SALARY SLIP")
-                print("\t\t\t\t\t---------------")
+
+    def slip():
+        try:
+            cur=con.cursor(buffered=True)
+            a=int(input("Enter  Id of the employee:"))
+            cur.execute("select * from "+t+" where Id=%s"%(a,))
+            s=cur.fetchone()
+            if s==None:
+                print("No record found")
+            else:
+                cur.execute("select * from "+t+" where Id=%s"%(a,))
+                s=cur.fetchone()
+                print(" \t\t\t\t\t  SALARY SLIP")
+                print(" \t\t\t\t\t---------------")
                 print()
                 d=datetime.date.today()
                 print("\t\t\t\t    -----",d,"------")
                 print()
-                
-            
-                print("\t\t\t\t    Id-->", i[0])
+                s=list(s)
+                print("\t\t\t\t    Id-->", s[0])
                 print()
-                print("\t\t\t\t    Name-->", i[1])
+                print("\t\t\t\t    Name-->", s[1])
                 print()
-                print("\t\t\t\t    Age-->", i[2])
+                print("\t\t\t\t    Age-->", s[2])
                 print()
-                print("\t\t\t\t    Gross-->", i[3])
+                print("\t\t\t\t    Gross-->", s[3])
                 print()
-                print("\t\t\t\t    Deduction-->", i[4])
+                print("\t\t\t\t    Deduction-->", s[4])
                 print()
-                print("\t\t\t\t    Allowances-->", i[5])
+                print("\t\t\t\t    Allowances-->", s[5])
                 print()
-                print("\t\t\t\t    Net pay-->", i[6])
+                print("\t\t\t\t    Net pay-->", s[6])
                 print()
                 print("\n")
-                print()
 
-    except Exception:
-        print("Something went wrong")
+        except Exception:
+            print("Something went wrong")
             
-    
-
             
-while True:
-    print("""****************************************** MAIN MENU *************************************************
-    
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t1) TO ADD EMPLOYEE DATA
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t2) TO SEARCH A PARTICULAR EMPLOYEE
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t3) TO DELETE A PARTICULAR EMPLOYEE
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t4) TO UPDATE AN EMPLOYEE DATA
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t5) TO SEARCH ALL EMPLOYEE
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t6) TO DELETE ALL RECORDS
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t7) TO GET A SALARY SLIP OF AN EMPLOYEE
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t8) TO GET SALARY SLIP OF ALL EMPLOYEES
-    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t9) EXIT
-    
-******************************************************************************************************""")
+            
 
-    print("\n")
-    c=int(input("enter choice:"))
-    if c==1:
-        add()
-    elif c==2:
-        search()
-    elif c==3:
-        delete()
-    elif c==4:
-        update()
-    elif c==5:
-        search_all()
-    elif c==6:
-        delete_all()
-    elif c==7:
-        slip()
-    elif c==8:
-        slip_all()
-    elif c==9:
-        break
-    else:
-        print("invalid option")
+
+    def slip_all():
+        try:
+            
+            cur=con.cursor(buffered=True)
+            cur.execute("select * from "+t)
+            s=cur.fetchone()
+            if s==None:
+                print("No record found")
+            else:
+                cur.execute("select * from "+t)
+                l=cur.fetchall()
+                for i in l:
+                    i=list(i)
+                    print(" \t\t\t\t\t SALARY SLIP")
+                    print("\t\t\t\t\t---------------")
+                    print()
+                    d=datetime.date.today()
+                    print("\t\t\t\t    -----",d,"------")
+                    print()
+                    
+                
+                    print("\t\t\t\t    Id-->", i[0])
+                    print()
+                    print("\t\t\t\t    Name-->", i[1])
+                    print()
+                    print("\t\t\t\t    Age-->", i[2])
+                    print()
+                    print("\t\t\t\t    Gross-->", i[3])
+                    print()
+                    print("\t\t\t\t    Deduction-->", i[4])
+                    print()
+                    print("\t\t\t\t    Allowances-->", i[5])
+                    print()
+                    print("\t\t\t\t    Net pay-->", i[6])
+                    print()
+                    print("\n")
+                    print()
+
+        except Exception:
+            print("Something went wrong")
+                
+        
+
+                
+    while True:
+        print("""****************************************** MAIN MENU *************************************************
+        
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t1) TO ADD EMPLOYEE DATA
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t2) TO SEARCH A PARTICULAR EMPLOYEE
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t3) TO DELETE A PARTICULAR EMPLOYEE
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t4) TO UPDATE AN EMPLOYEE DATA
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t5) TO SEARCH ALL EMPLOYEE
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t6) TO DELETE ALL RECORDS
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t7) TO GET A SALARY SLIP OF AN EMPLOYEE
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t8) TO GET SALARY SLIP OF ALL EMPLOYEES
+        \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t9) EXIT
+        
+**********************************************************************************************************""")
+
         print("\n")
+        c=int(input("Enter Choice:"))
+        if c==1:
+            add()
+        elif c==2:
+            search()
+        elif c==3:
+            delete()
+        elif c==4:
+            update()
+        elif c==5:
+            search_all()
+        elif c==6:
+            delete_all()
+        elif c==7:
+            slip()
+        elif c==8:
+            slip_all()
+        elif c==9:
+            break
+        else:
+            print("Invalid Option")
+            print("\n")
     
+
+except Exception:
+    print("Something went wrong")
+                
